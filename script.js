@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         csscloud flash 播放器替换
 // @namespace    https://home.asec01.net/
-// @version      0.3-beta
-// @description  将csscloud的flash播放器换为flvjs
+// @version      0.3-beta2
+// @description  将 csscloud 的 flash 播放器换为 flvjs
 // @author       Zhe Zhang
 // @match        http://view.csslcloud.net/api/view/*
 // @match        https://view.csslcloud.net/api/view/*
@@ -24,7 +24,7 @@
     }
 
     function playLink(u, t) {
-        zzlog("播放链接:" + u);
+        zzlog("播放链接:\n" + u);
         if (flvjs.isSupported()) {
             var videoElement = document.getElementById('videoElement');
             var flvPlayer = flvjs.createPlayer({
@@ -38,52 +38,64 @@
     }
 
     function zzlog(t) {
-        console.log("zz csscloud script:\n" + t);
+        console.log("%cZZ csscloud userscript\n%c" + t, "font-weight:bold", "");
+    }
+
+    function zzWelcome(){
+        console.log("\n" +
+            "%cZZ Injected\n" +
+            "%c\n欢迎使用 ZZ 的 csscloud 播放器替换脚本\n" +
+            "项目主页：https://github.com/zzzz0317/csscloud-flash-player-replacer/\n" +
+            "作者主页：https://home.asec01.net/\n","font-size:20pt","")
     }
 
     'use strict';
-    console.log("zz csscloud script load");
+    zzWelcome();
+    zzlog("初始化");
     var isHttps = 'https:' == document.location.protocol ? true : false;
+    var roomId = getQueryVariable("roomid");
+    var recordId = getQueryVariable("recordid");
+    zzlog("roomId: " + roomId);
+    zzlog("recordId: " + recordId);
+    zzlog("isHttps: " + isHttps);
 
-    var livePlayer = $('#video-middle');
-    if (livePlayer.length == 1) {
-        //$(livePlayer).html('<iframe src="https://publicfiles.zhangzhe-tech.cn/csscloud-player/player.html?roomid=' + getQueryVariable("roomid") + '" height="100%" width="100%" frameBorder="0"></iframe>');
-        $(livePlayer).html('<video id="videoElement" height="100%" width="100%" autoplay controls></video>');
-    }
     window.onload = function () {
-        zzlog("window.onload");
-        var roomId = getQueryVariable("roomid");
-        var recordId = getQueryVariable("recordid");
-        if (roomId == false) {
-            zzlog("参数错误 - 未获取到roomid");
-        } else {
-            if (recordId == false) {
+        zzlog("Dom加载完成，替换播放器");
+        var livePlayer = $('#video-middle');
+        if (livePlayer.length == 1) {
+            $(livePlayer).html('<video id="videoElement" height="100%" width="100%" autoplay controls></video>');
+        }
+        zzlog("替换完成");
+
+        if (recordId == false) {
+            if (roomId == false) {
+                zzlog("参数错误 - 未获取到roomid和recordId");
+            } else {
                 zzlog("直播模式");
                 playLink('https://stream-ali1.csslcloud.net/src/' + roomId + '.flv', "flv");
-            } else {
-                zzlog("回放模式")
-                var userId = getQueryVariable("userid");
-                $.ajax({
-                    method: 'GET',
-                    url: 'http://view.csslcloud.net/api/vod/v2/play/h5',
-                    data: {
-                        recordid: recordId,
-                        userid: userId
-                    },
-                    success: function (data) {
-                        console.log(data);
-                        //var infoObj = JSON.parse(data);
-                        var linkObj = data["video"][0];
-                        var link = "";
-                        if (isHttps) {
-                            link = linkObj["secureplayurl"];
-                        } else {
-                            link = linkObj["playurl"];
-                        }
-                        playLink(link, "mp4");
-                    }
-                });
             }
+        } else {
+            zzlog("回放模式");
+            var userId = getQueryVariable("userid");
+            $.ajax({
+                method: 'GET',
+                url: '//view.csslcloud.net/api/vod/v2/play/h5',
+                data: {
+                    recordid: recordId,
+                    userid: userId
+                },
+                success: function (data) {
+                    //console.log(data);
+                    var linkObj = data["video"][0];
+                    var link = "";
+                    if (isHttps) {
+                        link = linkObj["secureplayurl"];
+                    } else {
+                        link = linkObj["playurl"];
+                    }
+                    playLink(link, "mp4");
+                }
+            });
         }
     }
 })();
