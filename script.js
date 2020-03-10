@@ -10,7 +10,7 @@
 // @require      https://cdnjs.cloudflare.com/ajax/libs/flv.js/1.5.0/flv.min.js
 // ==/UserScript==
 
-(function() {
+(function () {
     function getQueryVariable(variable) {
         var query = window.location.search.substring(1);
         var vars = query.split("&");
@@ -23,7 +23,7 @@
         return (false);
     }
 
-    function playLink(u,t){
+    function playLink(u, t) {
         zzlog("播放链接:" + u);
         if (flvjs.isSupported()) {
             var videoElement = document.getElementById('videoElement');
@@ -37,16 +37,16 @@
         }
     }
 
-    function zzlog(t){
+    function zzlog(t) {
         console.log("zz csscloud script:\n" + t);
     }
 
     'use strict';
     console.log("zz csscloud script load");
-    var isHttps = 'https:' == document.location.protocol ? true: false;
+    var isHttps = 'https:' == document.location.protocol ? true : false;
 
     var livePlayer = $('#video-middle');
-    if (livePlayer.length==1) {
+    if (livePlayer.length == 1) {
         //$(livePlayer).html('<iframe src="https://publicfiles.zhangzhe-tech.cn/csscloud-player/player.html?roomid=' + getQueryVariable("roomid") + '" height="100%" width="100%" frameBorder="0"></iframe>');
         $(livePlayer).html('<video id="videoElement" height="100%" width="100%" autoplay controls></video>');
     }
@@ -54,13 +54,13 @@
         zzlog("window.onload");
         var roomId = getQueryVariable("roomid");
         var recordId = getQueryVariable("recordid");
-        if (roomId == false){
+        if (roomId == false) {
             zzlog("参数错误 - 未获取到roomid");
-        }else{
-            if (recordId == false){
+        } else {
+            if (recordId == false) {
                 zzlog("直播模式");
                 playLink('https://stream-ali1.csslcloud.net/src/' + roomId + '.flv', "flv");
-            }else{
+            } else {
                 zzlog("回放模式")
                 var userId = getQueryVariable("userid");
                 $.ajax({
@@ -75,12 +75,12 @@
                         //var infoObj = JSON.parse(data);
                         var linkObj = data["video"][0];
                         var link = "";
-                        if (isHttps){
+                        if (isHttps) {
                             link = linkObj["secureplayurl"];
-                        }else{
+                        } else {
                             link = linkObj["playurl"];
                         }
-                        playLink(link,"mp4");
+                        playLink(link, "mp4");
                     }
                 });
             }
