@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         csscloud flash 播放器替换
 // @namespace    https://home.asec01.net/
-// @version      0.3-1
+// @version      0.3-2
 // @description  将 csscloud 的 flash 播放器换为 flvjs
 // @author       Zhe Zhang
 // @match        http://view.csslcloud.net/api/view/*
@@ -41,12 +41,12 @@
         console.log("%cZZ csscloud userscript\n%c" + t, "font-weight:bold", "");
     }
 
-    function zzWelcome(){
+    function zzWelcome() {
         console.log("\n" +
             "%cZZ Injected\n" +
             "%c\n欢迎使用 ZZ 的 csscloud 播放器替换脚本\n" +
             "项目主页：https://github.com/zzzz0317/csscloud-flash-player-replacer/\n" +
-            "作者主页：https://home.asec01.net/\n","font-size:20pt","")
+            "作者主页：https://home.asec01.net/\n", "font-size:20pt", "")
     }
 
     'use strict';
@@ -59,7 +59,7 @@
     zzlog("recordId: " + recordId);
     zzlog("isHttps: " + isHttps);
 
-    window.onload = function () {
+    $(document).ready(function () {
         zzlog("Dom加载完成，替换播放器");
         var livePlayer = $('#doc-main');
         if (livePlayer.length == 1) {
@@ -97,5 +97,5 @@
                 }
             });
         }
-    }
+    })
 })();
