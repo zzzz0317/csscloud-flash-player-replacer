@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         csscloud flash 播放器替换
 // @namespace    https://home.asec01.net/
-// @version      0.3
+// @version      0.3-1
 // @description  将 csscloud 的 flash 播放器换为 flvjs
 // @author       Zhe Zhang
 // @match        http://view.csslcloud.net/api/view/*
@@ -61,7 +61,7 @@
 
     window.onload = function () {
         zzlog("Dom加载完成，替换播放器");
-        var livePlayer = $('#video-middle');
+        var livePlayer = $('#doc-main');
         if (livePlayer.length == 1) {
             $(livePlayer).html('<video id="videoElement" height="100%" width="100%" autoplay controls></video>');
         }
