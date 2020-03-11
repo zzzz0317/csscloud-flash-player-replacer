@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         csscloud flash 播放器替换
 // @namespace    https://home.asec01.net/
-// @version      0.4-dev3
+// @version      0.4-dev4
 // @description  将 csscloud 的 flash 播放器换为 DPlayer
 // @author       Zhe Zhang
 // @license      MIT
@@ -79,9 +79,10 @@ var jq=jQuery.noConflict();
                 url: u,
             },
         });
+        zzWelcomeDanmaku();
     }
 
-    var danmakuArray = []
+    var danmakuArray = [];
     function playLink(u) {
         zzlog("playLink播放链接:\n" + u);
         dp = new DPlayer({
@@ -89,15 +90,24 @@ var jq=jQuery.noConflict();
             autoplay: true,
             live: false,
             danmaku: true,
+            apiBackend: {
+                read: function(endpoint, callback) {
+                    // console.log('Pretend to connect WebSocket');
+                    // callback();
+                    endpoint.success();
+                },
+                send: function(endpoint, danmakuData, callback) {
+                    endpoint.success();
+                },
+            },
             video: {
                 url: u,
             },
         });
-        // zzlog(danmakuArray);
-        setInterval(function(){
-            var currentTime = dp.video.currentTime
+        function readLoop(){
+            var currentTime = dp.video.currentTime;
             var cTime = parseInt(currentTime);
-            zzlog("dp.video.currentTime: " + currentTime + "\ncTime: " + cTime);
+            //zzlog("dp.video.currentTime: " + currentTime + "\ncTime: " + cTime);
             danmakuArray.forEach(function(item) {
                 //console.log(item);
                 if (item.time == cTime){
@@ -111,7 +121,17 @@ var jq=jQuery.noConflict();
                     on_cc_live_chat_msg(realTimeMsg);
                 }
             })
-            }, 1000);
+        }
+        var readInter;
+        dp.on('pause', function() {
+            zzlog('播放暂停');
+            clearInterval(readInter);
+        });
+        dp.on('play', function() {
+            zzlog('播放');
+            readInter = setInterval(function(){ readLoop() }, 1000);
+        });
+        zzWelcomeDanmaku();
     }
 
     function addDanmaku(t){
@@ -121,11 +141,6 @@ var jq=jQuery.noConflict();
             type: 'right',
         };
         dp.danmaku.draw(danmaku);
-    }
-
-    const hijack = (obj, method, fun) => {
-        let orig = obj[method]
-        obj[method] = fun(orig)
     }
 
     function zzlog(t) {
@@ -138,6 +153,17 @@ var jq=jQuery.noConflict();
             "%c\n欢迎使用 ZZ 的 csscloud 播放器替换脚本\n" +
             "项目主页：https://github.com/zzzz0317/csscloud-flash-player-replacer/\n" +
             "作者主页：https://home.asec01.net/\n", "font-size:20pt", "")
+    }
+
+    function zzWelcomeDanmaku(){
+        // const danmaku = {
+        //     text: "欢迎使用 ZZ 的 csscloud 播放器替换脚本",
+        //     color: '#ffffff',
+        //     type: 'bottom'
+        // };
+        // dp.danmaku.opacity(1);
+        // dp.danmaku.draw(danmaku);
+        dp.notice("欢迎使用 ZZ 的 csscloud 播放器替换脚本", 5000);
     }
 
     'use strict';
