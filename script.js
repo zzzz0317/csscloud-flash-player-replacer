@@ -1,9 +1,12 @@
 // ==UserScript==
 // @name         csscloud flash 播放器替换
 // @namespace    https://home.asec01.net/
-// @version      0.4-dev2
+// @version      0.4-dev3
 // @description  将 csscloud 的 flash 播放器换为 DPlayer
 // @author       Zhe Zhang
+// @license      MIT
+// @supportURL   https://github.com/zzzz0317/csscloud-flash-player-replacer/
+// @icon         https://github.com/zzzz0317/csscloud-flash-player-replacer/raw/master/favicon_csscloud.ico
 // @match        http://view.csslcloud.net/api/view/*
 // @match        https://view.csslcloud.net/api/view/*
 // @grant        GM_addStyle
@@ -13,8 +16,10 @@
 // @resource     dPlayerCSS https://cdnjs.cloudflare.com/ajax/libs/dplayer/1.25.0/DPlayer.min.css
 // @require      https://cdnjs.cloudflare.com/ajax/libs/dplayer/1.25.0/DPlayer.min.js
 // ==/UserScript==
-(function () {
 
+var jq=jQuery.noConflict();
+
+(function () {
     function getQueryVariable(variable) {
         var query = window.location.search.substring(1);
         var vars = query.split("&");
@@ -30,16 +35,6 @@
     var dp;
 
     function playLive(u) {
-        zzlog("playLive播放链接:\n" + u);
-        dp = new DPlayer({
-            container: document.getElementById('videoElement'),
-            autoplay: true,
-            live: true,
-            danmaku: true,
-            video: {
-                url: u,
-            },
-        });
         zzlog("监听聊天框");
         var targetNode = document.getElementById('chat-list');
         var config = {attributes: true, childList: true, subtree: true};
@@ -57,6 +52,33 @@
         };
         var observer = new MutationObserver(mutationCallback);
         observer.observe(targetNode, config);
+
+        zzlog("playLive播放链接:\n" + u);
+        dp = new DPlayer({
+            container: document.getElementById('videoElement'),
+            autoplay: true,
+            live: true,
+            danmaku: true,
+            apiBackend: {
+                read: function(endpoint, callback) {
+                    // console.log('Pretend to connect WebSocket');
+                    // callback();
+                    endpoint.success();
+                },
+                send: function(endpoint, danmakuData, callback) {
+                    observer.disconnect();
+                    console.log(endpoint);
+                    zzlog("发送弹幕: " + endpoint.data.text);
+                    jq("#chatContent").val(endpoint.data.text);
+                    sendChatMsg();
+                    endpoint.success();
+                    setTimeout(function(){ observer.observe(targetNode, config); }, 200);
+                },
+            },
+            video: {
+                url: u,
+            },
+        });
     }
 
     var danmakuArray = []
@@ -132,12 +154,12 @@
     zzlog("userId: " + userId);
     zzlog("isHttps: " + isHttps);
 
-    $(document).ready(function () {
+    jq(document).ready(function () {
         zzlog("Dom加载完成");
-        var livePlayer = $('#doc-main');
+        var livePlayer = jq('#doc-main');
         if (livePlayer.length == 1) {
-            // $(livePlayer).html('<video id="videoElement" height="100%" width="100%" autoplay controls></video>');
-            $(livePlayer).html('<div id="videoElement"></div>');
+            // jq(livePlayer).html('<video id="videoElement" height="100%" width="100%" autoplay controls></video>');
+            jq(livePlayer).html('<div id="videoElement"></div>');
         }
         var dPlayerCSS = GM_getResourceText("dPlayerCSS");
         GM_addStyle(dPlayerCSS);
@@ -150,7 +172,8 @@
                 zzlog("参数错误 - 未获取到roomid和recordId");
             } else {
                 zzlog("直播模式");
-                playLive('//stream-ali1.csslcloud.net/src/' + roomId + '.flv');
+                //playLive('//stream-ali1.csslcloud.net/src/' + roomId + '.flv');
+                playLive('//cm15-c110-2.play.bokecc.com/flvs/ca/QxIQ5/uv8BibO6WS-90.mp4?t=1583932530&key=2C52134A9753E58590BC88CB8B8525EB&tpl=20&tpt=230');
             }
         } else {
             zzlog("回放模式");
@@ -158,7 +181,7 @@
             var lmb = document.getElementsByClassName("l-m-b")[0];
             lmb.style.display = "none";
 
-            $.ajax({
+            jq.ajax({
                 method: 'GET',
                 url: '//view.csslcloud.net/api/vod/v2/play/h5',
                 data: {
@@ -177,7 +200,7 @@
                     playLink(link);
                 }
             });
-            $.ajax({
+            jq.ajax({
                 method: 'GET',
                 url: '//view.csslcloud.net/api/view/replay/chatqa/info',
                 data: {
