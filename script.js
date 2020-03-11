@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         csscloud flash 播放器替换
 // @namespace    https://home.asec01.net/
-// @version      0.4-dev1
+// @version      0.4-dev2
 // @description  将 csscloud 的 flash 播放器换为 DPlayer
 // @author       Zhe Zhang
 // @match        http://view.csslcloud.net/api/view/*
@@ -40,8 +40,26 @@
                 url: u,
             },
         });
+        zzlog("监听聊天框");
+        var targetNode = document.getElementById('chat-list');
+        var config = {attributes: true, childList: true, subtree: true};
+        const mutationCallback = (mutationsList) => {
+            for (let mutation of mutationsList) {
+                if (mutation.type == "childList") {
+                    // console.log("A child node has been added or removed.");
+                    var nodeElem = mutation.addedNodes[1];
+                    console.log(nodeElem);
+                    var innerText = nodeElem.getElementsByClassName("peo-chat")[0].innerText;
+                    console.log(innerText);
+                    addDanmaku(innerText);
+                }
+            }
+        };
+        var observer = new MutationObserver(mutationCallback);
+        observer.observe(targetNode, config);
     }
 
+    var danmakuArray = []
     function playLink(u) {
         zzlog("playLink播放链接:\n" + u);
         dp = new DPlayer({
@@ -53,6 +71,25 @@
                 url: u,
             },
         });
+        // zzlog(danmakuArray);
+        setInterval(function(){
+            var currentTime = dp.video.currentTime
+            var cTime = parseInt(currentTime);
+            zzlog("dp.video.currentTime: " + currentTime + "\ncTime: " + cTime);
+            danmakuArray.forEach(function(item) {
+                //console.log(item);
+                if (item.time == cTime){
+                    addDanmaku(item.content);
+                    var realTimeMsg = {
+                        userid: item.userId,
+                        username: item.userName,
+                        msg: item.content,
+                        time: item.time
+                    };
+                    on_cc_live_chat_msg(realTimeMsg);
+                }
+            })
+            }, 1000);
     }
 
     function addDanmaku(t){
@@ -87,8 +124,12 @@
     var isHttps = 'https:' == document.location.protocol ? true : false;
     var roomId = getQueryVariable("roomid");
     var recordId = getQueryVariable("recordid");
+    var liveId = getQueryVariable("liveid");
+    var userId = getQueryVariable("userid");
     zzlog("roomId: " + roomId);
     zzlog("recordId: " + recordId);
+    zzlog("liveId: " + recordId);
+    zzlog("userId: " + userId);
     zzlog("isHttps: " + isHttps);
 
     $(document).ready(function () {
@@ -113,7 +154,10 @@
             }
         } else {
             zzlog("回放模式");
-            var userId = getQueryVariable("userid");
+            GM_addStyle("#doc-main { height: 100%; }");
+            var lmb = document.getElementsByClassName("l-m-b")[0];
+            lmb.style.display = "none";
+
             $.ajax({
                 method: 'GET',
                 url: '//view.csslcloud.net/api/vod/v2/play/h5',
@@ -133,23 +177,21 @@
                     playLink(link);
                 }
             });
-        }
-
-        var targetNode = document.getElementById('chat-list');
-        var config = {attributes: true, childList: true, subtree: true};
-        const mutationCallback = (mutationsList) => {
-            for (let mutation of mutationsList) {
-                if (mutation.type == "childList") {
-                    // console.log("A child node has been added or removed.");
-                    var nodeElem = mutation.addedNodes[1];
-                    console.log(nodeElem);
-                    var innerText = nodeElem.getElementsByClassName("peo-chat")[0].innerText;
-                    console.log(innerText);
-                    addDanmaku(innerText);
+            $.ajax({
+                method: 'GET',
+                url: '//view.csslcloud.net/api/view/replay/chatqa/info',
+                data: {
+                    roomid: roomId,
+                    liveid: liveId,
+                    recordid: recordId,
+                    userid: userId
+                },
+                success: function (data) {
+                    // console.log(data);
+                    danmakuArray = data.datas.meta.chatLog;
                 }
-            }
-        };
-        var observer = new MutationObserver(mutationCallback);
-        observer.observe(targetNode, config);
+            });
+
+        }
     })
 })();
