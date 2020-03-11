@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         csscloud flash 播放器替换
 // @namespace    https://home.asec01.net/
-// @version      0.3-beta2
+// @version      0.3
 // @description  将 csscloud 的 flash 播放器换为 flvjs
 // @author       Zhe Zhang
 // @match        http://view.csslcloud.net/api/view/*
@@ -72,7 +72,7 @@
                 zzlog("参数错误 - 未获取到roomid和recordId");
             } else {
                 zzlog("直播模式");
-                playLink('https://stream-ali1.csslcloud.net/src/' + roomId + '.flv', "flv");
+                playLink('//stream-ali1.csslcloud.net/src/' + roomId + '.flv', "flv");
             }
         } else {
             zzlog("回放模式");
