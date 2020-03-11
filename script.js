@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         csscloud flash 播放器替换
 // @namespace    https://home.asec01.net/
-// @version      0.4-dev4
+// @version      0.4-dev5
 // @description  将 csscloud 的 flash 播放器换为 DPlayer
 // @author       Zhe Zhang
 // @license      MIT
@@ -198,8 +198,8 @@ var jq=jQuery.noConflict();
                 zzlog("参数错误 - 未获取到roomid和recordId");
             } else {
                 zzlog("直播模式");
-                //playLive('//stream-ali1.csslcloud.net/src/' + roomId + '.flv');
-                playLive('//cm15-c110-2.play.bokecc.com/flvs/ca/QxIQ5/uv8BibO6WS-90.mp4?t=1583932530&key=2C52134A9753E58590BC88CB8B8525EB&tpl=20&tpt=230');
+                playLive('//stream-ali1.csslcloud.net/src/' + roomId + '.flv');
+                // playLive('//cm15-c110-2.play.bokecc.com/flvs/ca/QxIQ5/uv8BibO6WS-90.mp4?t=1583932530&key=2C52134A9753E58590BC88CB8B8525EB&tpl=20&tpt=230');
             }
         } else {
             zzlog("回放模式");
