@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         csscloud flash 播放器替换
 // @namespace    https://home.asec01.net/
-// @version      0.4-dev6
+// @version      0.4-dev7
 // @description  将 csscloud 的 flash 播放器换为 DPlayer
 // @author       Zhe Zhang
 // @license      MIT
@@ -162,7 +162,7 @@ var jq = jQuery.noConflict();
             danmakuArray.forEach(function (item) {
                 //console.log(item);
                 if (item.time == cTime) {
-                    addDanmaku(item.content);
+                    addDanmaku(item.userName + " : " + showEm(item.content));
                     var realTimeMsg = {
                         userid: item.userId,
                         username: item.userName,
