@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         csscloud flash 播放器替换
 // @namespace    https://home.asec01.net/
-// @version      0.4-dev9
+// @version      0.4-dev10
 // @description  将 csscloud 的 flash 播放器换为 DPlayer
 // @author       Zhe Zhang
 // @license      MIT
@@ -33,14 +33,15 @@ var jq = jQuery.noConflict();
     };
 
     var playerSettings = {
-        'showNameInDanmaku': false
+        'showNameInDanmaku': false,
+        'preventLivePause': false
     };
 
     function readPlayerSettings() {
         var v = GM_getValue('playerSettings');
-        if (v != undefined){
+        if (v != undefined) {
             playerSettings = v;
-        }else{
+        } else {
             savePlayerSettings();
         }
         // console.log(playerSettings);
@@ -74,13 +75,24 @@ var jq = jQuery.noConflict();
             link: getZZValue("projectLink"),
         },
         {
-            text: '开关弹幕发送者显示',
+            text: '弹幕发送者显示开关',
             click: (player) => {
                 setPlayerSettings("showNameInDanmaku", !playerSettings.showNameInDanmaku);
-                if(playerSettings.showNameInDanmaku){
-                    player.notice("打开弹幕发送者显示")
-                }else{
-                    player.notice("关闭弹幕发送者显示")
+                if (playerSettings.showNameInDanmaku) {
+                    player.notice("显示弹幕发送者");
+                } else {
+                    player.notice("不显示弹幕发送者");
+                }
+            },
+        },
+        {
+            text: '阻止暂停开关',
+            click: (player) => {
+                setPlayerSettings("preventLivePause", !playerSettings.preventLivePause);
+                if (playerSettings.preventLivePause) {
+                    player.notice("阻止暂停功能已打开");
+                } else {
+                    player.notice("阻止暂停功能已关闭");
                 }
             },
         },
@@ -113,10 +125,10 @@ var jq = jQuery.noConflict();
                     var nodeElem = mutation.addedNodes[1];
                     console.log(nodeElem);
                     var displayContent = nodeElem.getElementsByClassName("peo-chat")[0].getElementsByClassName("chat-content")[0].innerHTML;
-                    if (playerSettings.showNameInDanmaku){
+                    if (playerSettings.showNameInDanmaku) {
                         var displayName = nodeElem.getElementsByClassName("peo-names")[0].innerText;
                         addDanmaku(displayName + " : " + displayContent);
-                    }else{
+                    } else {
                         addDanmaku(displayContent);
                     }
                 }
@@ -156,8 +168,12 @@ var jq = jQuery.noConflict();
             },
         });
         dp.on('pause', function () {
-            dp.play();
-            dp.notice("直播，请不要暂停", 1000);
+            if (playerSettings.preventLivePause) {
+                dp.play();
+                dp.notice("直播，请不要暂停", 1000);
+            } else {
+                dp.notice("直播，建议不要暂停", 1000)
+            }
         });
 
         setTimeout(function () {
@@ -233,9 +249,9 @@ var jq = jQuery.noConflict();
             danmakuArray.forEach(function (item) {
                 //console.log(item);
                 if (item.time == cTime) {
-                    if(playerSettings.showNameInDanmaku){
+                    if (playerSettings.showNameInDanmaku) {
                         addDanmaku(item.userName + " : " + showEm(item.content));
-                    }else{
+                    } else {
                         addDanmaku(showEm(item.content));
                     }
                     var realTimeMsg = {
@@ -297,7 +313,7 @@ var jq = jQuery.noConflict();
 
     function refreshZZValue() {
         var v = GM_getValue('zzValue');
-        if (v != undefined){
+        if (v != undefined) {
             zzValue = v;
         }
         jq.ajax({
