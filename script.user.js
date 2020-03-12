@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         csscloud flash 播放器替换
 // @namespace    https://home.asec01.net/
-// @version      0.4-dev10
+// @version      0.4
 // @description  将 csscloud 的 flash 播放器换为 DPlayer
 // @author       Zhe Zhang
 // @license      MIT
@@ -44,7 +44,6 @@ var jq = jQuery.noConflict();
         } else {
             savePlayerSettings();
         }
-        // console.log(playerSettings);
     }
 
     function savePlayerSettings() {
@@ -65,7 +64,7 @@ var jq = jQuery.noConflict();
                 return pair[1];
             }
         }
-        return (false);
+        return false;
     }
 
     var dp;
@@ -121,7 +120,6 @@ var jq = jQuery.noConflict();
         const mutationCallback = (mutationsList) => {
             for (let mutation of mutationsList) {
                 if (mutation.type == "childList") {
-                    // console.log("A child node has been added or removed.");
                     var nodeElem = mutation.addedNodes[1];
                     console.log(nodeElem);
                     var displayContent = nodeElem.getElementsByClassName("peo-chat")[0].getElementsByClassName("chat-content")[0].innerHTML;
@@ -147,8 +145,6 @@ var jq = jQuery.noConflict();
             contextmenu: dpContextMenu,
             apiBackend: {
                 read: function (endpoint, callback) {
-                    // console.log('Pretend to connect WebSocket');
-                    // callback();
                     endpoint.success();
                 },
                 send: function (endpoint, danmakuData, callback) {
@@ -172,7 +168,7 @@ var jq = jQuery.noConflict();
                 dp.play();
                 dp.notice("直播，请不要暂停", 1000);
             } else {
-                dp.notice("直播，建议不要暂停", 1000)
+                dp.notice("直播，建议不要暂停", 1000);
             }
         });
 
@@ -229,8 +225,6 @@ var jq = jQuery.noConflict();
             contextmenu: dpContextMenu,
             apiBackend: {
                 read: function (endpoint, callback) {
-                    // console.log('Pretend to connect WebSocket');
-                    // callback();
                     endpoint.success();
                 },
                 send: function (endpoint, danmakuData, callback) {
@@ -245,7 +239,6 @@ var jq = jQuery.noConflict();
         function readLoop() {
             var currentTime = dp.video.currentTime;
             var cTime = parseInt(currentTime);
-            //zzlog("dp.video.currentTime: " + currentTime + "\ncTime: " + cTime);
             danmakuArray.forEach(function (item) {
                 //console.log(item);
                 if (item.time == cTime) {
@@ -297,17 +290,10 @@ var jq = jQuery.noConflict();
             "%cZZ Injected\n" +
             "%c\n欢迎使用 ZZ 的 csscloud 播放器替换脚本\n" +
             "项目主页：https://github.com/zzzz0317/csscloud-flash-player-replacer/\n" +
-            "作者主页：https://home.asec01.net/\n", "font-size:20pt", "")
+            "作者主页：https://home.asec01.net/\n", "font-size:20pt", "");
     }
 
     function zzWelcomeDanmaku() {
-        // const danmaku = {
-        //     text: "欢迎使用 ZZ 的 csscloud 播放器替换脚本",
-        //     color: '#ffffff',
-        //     type: 'bottom'
-        // };
-        // dp.danmaku.opacity(1);
-        // dp.danmaku.draw(danmaku);
         dp.notice(getZZValue("mainMsg"), getZZValue("mainMsgShowTime"));
     }
 
@@ -377,7 +363,6 @@ var jq = jQuery.noConflict();
             } else {
                 zzlog("直播模式");
                 playLive('//stream-ali1.csslcloud.net/src/' + roomId + '.flv');
-                // playLive('//cm15-c110-2.play.bokecc.com/flvs/ca/QxIQ5/uv8BibO6WS-90.mp4?t=1583932530&key=2C52134A9753E58590BC88CB8B8525EB&tpl=20&tpt=230');
             }
         } else {
             zzlog("回放模式");
