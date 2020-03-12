@@ -45,8 +45,10 @@ var jq=jQuery.noConflict();
                     var nodeElem = mutation.addedNodes[1];
                     console.log(nodeElem);
                     var innerText = nodeElem.getElementsByClassName("peo-chat")[0].innerText;
-                    console.log(innerText);
-                    addDanmaku(innerText);
+                    var innerName = nodeElem.getElementsByClassName("peo-names")[0].innerText;
+                    var displayContent = innerName + " : " + innerText;
+                    console.log(displayContent);
+                    addDanmaku(displayContent);
                 }
             }
         };
@@ -58,6 +60,7 @@ var jq=jQuery.noConflict();
             container: document.getElementById('videoElement'),
             autoplay: true,
             live: true,
+            volume: 1,
             danmaku: true,
             apiBackend: {
                 read: function(endpoint, callback) {
@@ -89,6 +92,7 @@ var jq=jQuery.noConflict();
             container: document.getElementById('videoElement'),
             autoplay: true,
             live: false,
+            volume: 1,
             danmaku: true,
             apiBackend: {
                 read: function(endpoint, callback) {
