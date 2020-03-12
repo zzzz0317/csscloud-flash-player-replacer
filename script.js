@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         csscloud flash 播放器替换
 // @namespace    https://home.asec01.net/
-// @version      0.4-dev7
+// @version      0.4-dev8
 // @description  将 csscloud 的 flash 播放器换为 DPlayer
 // @author       Zhe Zhang
 // @license      MIT
@@ -11,6 +11,9 @@
 // @match        https://view.csslcloud.net/api/view/*
 // @grant        GM_addStyle
 // @grant        GM_getResourceText
+// @grant        GM_setValue
+// @grant        GM_getValue
+// @grant        GM_setClipboard
 // @require      https://cdnjs.cloudflare.com/ajax/libs/jquery/1.9.0/jquery.min.js
 // @require      https://cdnjs.cloudflare.com/ajax/libs/flv.js/1.5.0/flv.min.js
 // @resource     dPlayerCSS https://cdnjs.cloudflare.com/ajax/libs/dplayer/1.25.0/DPlayer.min.css
@@ -21,6 +24,37 @@
 var jq = jQuery.noConflict();
 
 (function () {
+
+    var zzValue = {
+        "name": "ZZ 的播放器替换脚本",
+        "projectLink": "https://github.com/zzzz0317/csscloud-flash-player-replacer/",
+        "mainMsg": "欢迎使用 ZZ 的 csscloud 播放器替换脚本",
+        "mainMsgShowTime": 5000
+    };
+
+    var playerSettings = {
+        'showNameInDanmaku': false
+    };
+
+    function readPlayerSettings() {
+        var v = GM_getValue('playerSettings');
+        if (v != undefined){
+            playerSettings = v;
+        }else{
+            savePlayerSettings();
+        }
+        // console.log(playerSettings);
+    }
+
+    function savePlayerSettings() {
+        GM_setValue('playerSettings', playerSettings);
+    }
+
+    function setPlayerSettings(item, value) {
+        playerSettings[item] = value;
+        savePlayerSettings();
+    }
+
     function getQueryVariable(variable) {
         var query = window.location.search.substring(1);
         var vars = query.split("&");
@@ -34,6 +68,34 @@ var jq = jQuery.noConflict();
     }
 
     var dp;
+    var dpContextMenu = [
+        {
+            text: getZZValue("name"),
+            link: getZZValue("projectLink"),
+        },
+        {
+            text: '开关弹幕发送者显示',
+            click: (player) => {
+                setPlayerSettings("showNameInDanmaku", !playerSettings.showNameInDanmaku);
+                if(playerSettings.showNameInDanmaku){
+                    player.notice("打开弹幕发送者显示")
+                }else{
+                    player.notice("关闭弹幕发送者显示")
+                }
+            },
+        },
+        {
+            text: '复制视频链接到剪贴板',
+            click: (player) => {
+                zzlog("视频链接:\n" + player.video.src);
+                GM_setClipboard(player.video.src);
+                player.notice("复制完成: " + player.video.src)
+            },
+        },
+        {
+            text: '--------------------'
+        },
+    ];
 
     function playLive(u) {
         zzlog("监听聊天框");
@@ -45,11 +107,13 @@ var jq = jQuery.noConflict();
                     // console.log("A child node has been added or removed.");
                     var nodeElem = mutation.addedNodes[1];
                     console.log(nodeElem);
-                    var innerText = nodeElem.getElementsByClassName("peo-chat")[0].getElementsByClassName("chat-content")[0].innerHTML;
-                    var innerName = nodeElem.getElementsByClassName("peo-names")[0].innerText;
-                    var displayContent = innerName + " : " + innerText;
-                    console.log(displayContent);
-                    addDanmaku(displayContent);
+                    var displayContent = nodeElem.getElementsByClassName("peo-chat")[0].getElementsByClassName("chat-content")[0].innerHTML;
+                    if (playerSettings.showNameInDanmaku){
+                        var displayName = nodeElem.getElementsByClassName("peo-names")[0].innerText;
+                        addDanmaku(displayName + " : " + displayContent);
+                    }else{
+                        addDanmaku(displayContent);
+                    }
                 }
             }
         };
@@ -63,6 +127,7 @@ var jq = jQuery.noConflict();
             live: true,
             volume: 1,
             danmaku: true,
+            contextmenu: dpContextMenu,
             apiBackend: {
                 read: function (endpoint, callback) {
                     // console.log('Pretend to connect WebSocket');
@@ -86,7 +151,7 @@ var jq = jQuery.noConflict();
             },
         });
         dp.on('pause', function () {
-            // dp.play();
+            dp.play();
             dp.notice("直播，请不要暂停", 1000);
         });
 
@@ -140,6 +205,7 @@ var jq = jQuery.noConflict();
             live: false,
             volume: 1,
             danmaku: true,
+            contextmenu: dpContextMenu,
             apiBackend: {
                 read: function (endpoint, callback) {
                     // console.log('Pretend to connect WebSocket');
@@ -162,7 +228,11 @@ var jq = jQuery.noConflict();
             danmakuArray.forEach(function (item) {
                 //console.log(item);
                 if (item.time == cTime) {
-                    addDanmaku(item.userName + " : " + showEm(item.content));
+                    if(playerSettings.showNameInDanmaku){
+                        addDanmaku(item.userName + " : " + showEm(item.content));
+                    }else{
+                        addDanmaku(showEm(item.content));
+                    }
                     var realTimeMsg = {
                         userid: item.userId,
                         username: item.userName,
@@ -220,12 +290,11 @@ var jq = jQuery.noConflict();
         dp.notice(getZZValue("mainMsg"), getZZValue("mainMsgShowTime"));
     }
 
-    var zzValue = {
-        "mainMsg": "欢迎使用 ZZ 的 csscloud 播放器替换脚本",
-        "mainMsgShowTime": 5000
-    };
-
     function refreshZZValue() {
+        var v = GM_getValue('zzValue');
+        if (v != undefined){
+            zzValue = v;
+        }
         jq.ajax({
             method: 'GET',
             url: '//www.zhangzhe-tech.cn/copyright-files/csscloud-flash-player-replacer.json',
@@ -235,6 +304,7 @@ var jq = jQuery.noConflict();
             success: function (data) {
                 console.log(data);
                 zzValue = data.data;
+                GM_setValue('zzValue', zzValue);
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 zzlog("refreshValueError: " + textStatus + " " + jqXHR.status + " " + errorThrown);
@@ -266,6 +336,7 @@ var jq = jQuery.noConflict();
     zzlog("liveId: " + recordId);
     zzlog("userId: " + userId);
     zzlog("isHttps: " + isHttps);
+    readPlayerSettings();
     jq(document).ready(function () {
         zzlog("Dom加载完成");
         var livePlayer = jq('#doc-main');
@@ -328,6 +399,6 @@ var jq = jQuery.noConflict();
             });
 
         }
-    })
+    });
     refreshZZValue();
 })();
