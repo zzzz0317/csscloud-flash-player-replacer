@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         csscloud flash 播放器替换
 // @namespace    https://home.asec01.net/
-// @version      0.4-dev8
+// @version      0.4-dev9
 // @description  将 csscloud 的 flash 播放器换为 DPlayer
 // @author       Zhe Zhang
 // @license      MIT
@@ -87,9 +87,14 @@ var jq = jQuery.noConflict();
         {
             text: '复制视频链接到剪贴板',
             click: (player) => {
-                zzlog("视频链接:\n" + player.video.src);
-                GM_setClipboard(player.video.src);
-                player.notice("复制完成: " + player.video.src)
+                zzlog("视频链接:\n" + player.options.video.url);
+                GM_setClipboard(player.options.video.url);
+            },
+        },
+        {
+            text: '输出播放器信息到控制台',
+            click: (player) => {
+                console.log(player);
             },
         },
         {
