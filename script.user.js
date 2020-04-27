@@ -10,15 +10,13 @@
 // @match        http://view.csslcloud.net/api/view/*
 // @match        https://view.csslcloud.net/api/view/*
 // @grant        GM_addStyle
-// @grant        GM_getResourceText
 // @grant        GM_setValue
 // @grant        GM_getValue
 // @grant        GM_setClipboard
-// @require      https://cdnjs.cloudflare.com/ajax/libs/jquery/1.9.0/jquery.min.js
-// @require      https://cdnjs.cloudflare.com/ajax/libs/flv.js/1.5.0/flv.min.js
-// @resource     dPlayerCSS https://cdnjs.cloudflare.com/ajax/libs/dplayer/1.25.0/DPlayer.min.css
-// @require      https://cdnjs.cloudflare.com/ajax/libs/dplayer/1.25.0/DPlayer.min.js
-// @require      https://cdnjs.cloudflare.com/ajax/libs/Base64/1.1.0/base64.min.js
+// @require      https://cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js
+// @require      https://cdn.jsdelivr.net/npm/flv.js@1.5.0/dist/flv.min.js
+// @require      https://cdn.jsdelivr.net/npm/dplayer@1.25.1/dist/DPlayer.min.js
+// @require      https://cdn.jsdelivr.net/npm/Base64@1.1.0/base64.min.js
 // ==/UserScript==
 
 var jq = jQuery.noConflict();
@@ -351,8 +349,6 @@ var jq = jQuery.noConflict();
             // jq(livePlayer).html('<video id="videoElement" height="100%" width="100%" autoplay controls></video>');
             jq(livePlayer).html('<div id="videoElement"></div>');
         }
-        var dPlayerCSS = GM_getResourceText("dPlayerCSS");
-        GM_addStyle(dPlayerCSS);
         GM_addStyle(".videoElement { width: 100%; height: 100%; }");
         GM_addStyle(".dplayer { width: 100%; height: 100%; }");
         GM_addStyle(".video-middle { background-color: black; }");
