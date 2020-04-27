@@ -32,7 +32,8 @@ var jq = jQuery.noConflict();
 
     var playerSettings = {
         'showNameInDanmaku': false,
-        'preventLivePause': false
+        'preventLivePause': false,
+        'preventRetryError': false
     };
 
     function readPlayerSettings() {
@@ -90,6 +91,17 @@ var jq = jQuery.noConflict();
                     player.notice("阻止暂停功能已打开");
                 } else {
                     player.notice("阻止暂停功能已关闭");
+                }
+            },
+        },
+        {
+            text: '阻止失败刷新开关',
+            click: (player) => {
+                setPlayerSettings("preventRetryError", !playerSettings.preventRetryError);
+                if (playerSettings.preventRetryError) {
+                    player.notice("阻止失败刷新功能已打开");
+                } else {
+                    player.notice("阻止失败刷新功能已关闭");
                 }
             },
         },
@@ -167,6 +179,15 @@ var jq = jQuery.noConflict();
                 dp.notice("直播，请不要暂停", 1000);
             } else {
                 dp.notice("直播，建议不要暂停", 1000);
+            }
+        });
+
+        dp.plugins.flvjs.on(flvjs.Events.ERROR, (errType, errDetail) => {
+            if (playerSettings.preventRetryError) {
+                dp.notice("拉流出错，播放停止", 1000);
+            } else {
+                dp.notice("拉流出错，刷新页面中......", 1000);
+                location.reload();
             }
         });
 
