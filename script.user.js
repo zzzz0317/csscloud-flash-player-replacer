@@ -240,6 +240,7 @@ var jq = jQuery.noConflict();
             container: document.getElementById('videoElement'),
             autoplay: true,
             live: false,
+            screenshot: true,
             volume: 1,
             danmaku: true,
             contextmenu: dpContextMenu,
